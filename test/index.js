@@ -635,3 +635,22 @@ test('works without Array.isArray', function (t) {
 	Array.isArray = savedIsArray;
 	t.end();
 });
+
+test('non-object target', function (t) {
+	t.deepEqual(extend(3.14, { a: 'b' }), { a: 'b' });
+	t.deepEqual(extend(true, 3.14, { a: 'b' }), { a: 'b' });
+
+	t.end();
+});
+
+test('__proto__ is merged as an own property', function (t) {
+	var malicious = { fred: 1 };
+	Object.defineProperty(malicious, '__proto__', { value: { george: 1 }, enumerable: true });
+	var target = {};
+	extend(true, target, malicious);
+	t.notOk(target.george);
+	t.ok(Object.prototype.hasOwnProperty.call(target, '__proto__'));
+	t.deepEqual(Object.getOwnPropertyDescriptor(target, '__proto__').value, { george: 1 });
+
+	t.end();
+});
